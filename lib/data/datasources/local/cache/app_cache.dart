@@ -16,4 +16,7 @@ class AppCache {
     if (value.isEmpty || key.isEmpty) return;
     _prefs?.setString(key, value);
   }
+  static void clearAll() {
+    _prefs?.clear();
+  }
 }

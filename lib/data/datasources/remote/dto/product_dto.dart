@@ -1,12 +1,12 @@
 class ProductDto {
   ProductDto({
-      this.id, 
-      this.name, 
-      this.address, 
-      this.price, 
-      this.img, 
-      this.quantity, 
-      this.gallery
+    this.id,
+    this.name,
+    this.address,
+    this.price,
+    this.img,
+    this.quantity,
+    this.gallery
   });
 
   ProductDto.fromJson(dynamic json) {
