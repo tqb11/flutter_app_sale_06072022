@@ -22,9 +22,9 @@ class ProductDto {
   String? id;
   String? name;
   String? address;
-  num? price;
+  int? price;
   String? img;
-  num? quantity;
+  int? quantity;
   List<String>? gallery;
 
   Map<String, dynamic> toJson() {

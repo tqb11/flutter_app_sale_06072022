@@ -2,12 +2,12 @@ class Product {
   late String id;
   late String name;
   late String address;
-  late num price;
+  late int price;
   late String img;
-  late num quantity;
+  late int quantity;
   late List<String> gallery;
 
-  Product([String? id, String? name, String? address, num? price, String? img, num? quantity, List<String>? gallery]){
+  Product([String? id, String? name, String? address, int? price, String? img, int? quantity, List<String>? gallery]){
     this.id = id ?? "";
     this.name = name ?? "";
     this.address = address ?? "";

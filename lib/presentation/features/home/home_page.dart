@@ -27,6 +27,9 @@ class _HomePageState extends State<HomePage> {
     AppCache.clearAll();
     Navigator.pushReplacementNamed(context, VariableConstant.SIGN_IN_ROUTE);
   }
+  void listCart() {
+    Navigator.pushReplacementNamed(context, VariableConstant.CART_ROUTE);
+  }
   @override
   Widget build(BuildContext context) {
     return PageContainer(
@@ -45,8 +48,10 @@ class _HomePageState extends State<HomePage> {
 
                 },
               )
+
           ),
-          Consumer<HomeBloc>(
+
+          Consumer<CartBloc>(
             builder: (context, bloc, child){
               return StreamBuilder<Cart>(
                   initialData: null,
@@ -60,7 +65,13 @@ class _HomePageState extends State<HomePage> {
                       margin: EdgeInsets.only(right: 10, top: 10),
                       child: Badge(
                         badgeContent: Text(count.toString(), style: const TextStyle(color: Colors.white),),
-                        child: Icon(Icons.shopping_cart_outlined),
+                        child: IconButton(
+                          icon: Icon(Icons.shopping_cart_outlined),
+                          onPressed: () {
+                            Navigator.pushNamed(context, VariableConstant.CART_ROUTE);
+                          },
+                        )
+
                       ),
                     );
                   }
@@ -78,10 +89,10 @@ class _HomePageState extends State<HomePage> {
               ..updateRequest(request);
           },
         ),
-        ProxyProvider<ProductRepository, HomeBloc>(
+        ProxyProvider<ProductRepository, CartBloc>(
           update: (context, repository, bloc) {
             bloc?.updateProductRepository(repository);
-            return bloc ?? HomeBloc()
+            return bloc ?? CartBloc()
               ..updateProductRepository(repository);
           },
         ),
@@ -99,12 +110,12 @@ class HomeContainer extends StatefulWidget {
 }
 
 class _HomeContainerState extends State<HomeContainer> {
-  late HomeBloc _homeBloc;
+  late CartBloc _homeBloc;
 
   @override
   void initState() {
     super.initState();
-    _homeBloc = context.read<HomeBloc>();
+    _homeBloc = context.read<CartBloc>();
     _homeBloc.eventSink.add(GetListProductEvent());
     _homeBloc.eventSink.add(GetCartEvent());
   }
