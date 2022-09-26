@@ -24,6 +24,9 @@ class CartBloc extends BaseBloc{
       case GetCartEvent:
         _getCart();
         break;
+      case UpdateCartEvent:
+        _updateCart(event as UpdateCartEvent);
+        break;
     }
   }
 
@@ -62,7 +65,6 @@ class CartBloc extends BaseBloc{
           cartResponse.data?.idUser,
           cartResponse.data?.price
       );
-      print(cart);
       cartController.sink.add(cart);
     } on DioError catch (e) {
       cartController.sink.addError(e.response?.data["message"]);
