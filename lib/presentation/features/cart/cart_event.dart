@@ -16,7 +16,18 @@ class UpdateCartEvent extends BaseEvent {
 
 class CartConformEvent extends BaseEvent {
   String idCart;
+
   CartConformEvent({required this.idCart});
+
   @override
   List<Object?> get props => [];
+}
+
+class CartSuccessEvent extends BaseEvent {
+  String message;
+
+  CartSuccessEvent({required this.message});
+
+  @override
+  List<Object?> get props => [message];
 }

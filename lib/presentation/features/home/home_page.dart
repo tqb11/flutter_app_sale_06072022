@@ -2,6 +2,7 @@ import 'package:badges/badges.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_sale_06072022/common/bases/base_widget.dart';
+import 'package:flutter_app_sale_06072022/common/widgets/progress_listener_widget.dart';
 import 'package:flutter_app_sale_06072022/data/model/product.dart';
 import 'package:flutter_app_sale_06072022/data/repositories/product_repository.dart';
 import 'package:flutter_app_sale_06072022/presentation/features/home/home_bloc.dart';
@@ -27,9 +28,6 @@ class _HomePageState extends State<HomePage> {
     AppCache.clearAll();
     Navigator.pushReplacementNamed(context, VariableConstant.SIGN_IN_ROUTE);
   }
-  void listCart() {
-    Navigator.pushReplacementNamed(context, VariableConstant.CART_ROUTE);
-  }
   @override
   Widget build(BuildContext context) {
     return PageContainer(
@@ -45,13 +43,11 @@ class _HomePageState extends State<HomePage> {
               child: IconButton(
                 icon: Icon(Icons.history),
                 onPressed: () {
-
+                  Navigator.pushNamed(context, VariableConstant.ORDER_HISTORY_ROUTE);
                 },
               )
-
           ),
-
-          Consumer<CartBloc>(
+          Consumer<HomeBloc>(
             builder: (context, bloc, child){
               return StreamBuilder<Cart>(
                   initialData: null,
@@ -64,14 +60,17 @@ class _HomePageState extends State<HomePage> {
                     return Container(
                       margin: EdgeInsets.only(right: 10, top: 10),
                       child: Badge(
-                        badgeContent: Text(count.toString(), style: const TextStyle(color: Colors.white),),
-                        child: IconButton(
-                          icon: Icon(Icons.shopping_cart_outlined),
-                          onPressed: () {
-                            Navigator.pushNamed(context, VariableConstant.CART_ROUTE);
-                          },
-                        )
-
+                          badgeContent: Text(count.toString(), style: const TextStyle(color: Colors.white),),
+                          child: IconButton(
+                            icon: Icon(Icons.shopping_cart_outlined),
+                            onPressed: () {
+                              Navigator.pushNamed(context, VariableConstant.CART_ROUTE).then((cartUpdate){
+                                if(cartUpdate != null){
+                                  bloc.cartController.sink.add(cartUpdate as Cart);
+                                }
+                              });
+                            },
+                          )
                       ),
                     );
                   }
@@ -89,10 +88,10 @@ class _HomePageState extends State<HomePage> {
               ..updateRequest(request);
           },
         ),
-        ProxyProvider<ProductRepository, CartBloc>(
+        ProxyProvider<ProductRepository, HomeBloc>(
           update: (context, repository, bloc) {
             bloc?.updateProductRepository(repository);
-            return bloc ?? CartBloc()
+            return bloc ?? HomeBloc()
               ..updateProductRepository(repository);
           },
         ),
@@ -110,12 +109,12 @@ class HomeContainer extends StatefulWidget {
 }
 
 class _HomeContainerState extends State<HomeContainer> {
-  late CartBloc _homeBloc;
+  late HomeBloc _homeBloc;
 
   @override
   void initState() {
     super.initState();
-    _homeBloc = context.read<CartBloc>();
+    _homeBloc = context.read<HomeBloc>();
     _homeBloc.eventSink.add(GetListProductEvent());
     _homeBloc.eventSink.add(GetCartEvent());
   }
@@ -145,6 +144,14 @@ class _HomeContainerState extends State<HomeContainer> {
                         }
                     );
                   }
+              ),
+              ProgressListenerWidget<HomeBloc>(
+                callback: (event) {
+                  if (event is CartSuccessEvent) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(event.message)));
+                  }
+                },
+                child: Container(),
               ),
               LoadingWidget(
                 bloc: _homeBloc,
@@ -216,6 +223,13 @@ class _HomeContainerState extends State<HomeContainer> {
                               padding: const EdgeInsets.only(left: 5),
                               child: ElevatedButton(
                                 onPressed: () {
+                                  String token = AppCache.getString(VariableConstant.TOKEN);
+                                  if(token.isNotEmpty){
+                                    Navigator.pushNamed(context, VariableConstant.PRODUCT_DETAIL_ROUTE, arguments: product);
+                                  }
+                                  else{
+                                    Navigator.pushNamed(context, "/sign-in");
+                                  }
                                 },
                                 style: ButtonStyle(
                                     backgroundColor:
@@ -229,7 +243,11 @@ class _HomeContainerState extends State<HomeContainer> {
                                     shape: MaterialStateProperty.all(
                                         const RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(
-                                                Radius.circular(10))))),
+                                                Radius.circular(10)
+                                            )
+                                        )
+                                    )
+                                ),
                                 child:
                                 Text("Chi tiết", style: const TextStyle(fontSize: 14)),
                               ),
