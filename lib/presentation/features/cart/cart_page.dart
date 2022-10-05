@@ -13,6 +13,7 @@ import '../../../data/model/cart.dart';
 import '../../../data/repositories/product_repository.dart';
 import 'cart_bloc.dart';
 import 'cart_event.dart';
+
 class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
 
@@ -25,17 +26,17 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     return PageContainer(
       appBar: AppBar(
-        title: const Text("My Shopping Cart"),
+        title: const Text("Giỏ hàng"),
         actions: [
           Container(
               margin: EdgeInsets.only(right: 10, top: 10),
               child: IconButton(
                 icon: Icon(Icons.history),
                 onPressed: () {
-                  Navigator.pushNamed(context, VariableConstant.ORDER_HISTORY_ROUTE);
+                  Navigator.pushNamed(
+                      context, VariableConstant.ORDER_HISTORY_ROUTE);
                 },
-              )
-          )
+              ))
         ],
       ),
       providers: [
@@ -81,7 +82,7 @@ class _CartContainerState extends State<CartContainer> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async{
+      onWillPop: () async {
         Navigator.pop(context, _cartModel);
         return true;
       },
@@ -94,81 +95,90 @@ class _CartContainerState extends State<CartContainer> {
                     stream: _cartBloc.cartController.stream,
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
-                        return const Center(
-                            child: Text(
-                              'Your Cart is Empty',
-                              style:
-                              TextStyle(
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset("assets/images/cart_empty.png"),
+                            Text(
+                              'Giỏ hàng rỗng',
+                              style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 18.0),
-                            )
+                            ),
+                          ],
                         );
                       }
                       if (snapshot.hasData) {
                         _cartModel = snapshot.data;
                         if (snapshot.data!.products.isEmpty) {
-                          return const Center(
-                              child: Text(
-                                'Your Cart is Empty',
-                                style:
-                                TextStyle(
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset("assets/images/cart_empty.png"),
+                              Text(
+                                'Giỏ hàng rỗng',
+                                style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18.0),
-                              )
+                              ),
+                            ],
                           );
                         }
                         return Column(
                           children: [
                             Expanded(
                                 child: ListView.builder(
-                                    itemCount: snapshot.data?.products?.length ??
-                                        0,
+                                    itemCount: snapshot.data?.products?.length ?? 0,
                                     itemBuilder: (context, index) {
                                       return _buildItemCart(
                                           snapshot.data?.products?[index]);
-                                    }
-                                )
-                            ),
+                                    })),
                             Container(
                                 margin: EdgeInsets.symmetric(vertical: 10),
                                 padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                    color: Colors.teal,
-                                    borderRadius: BorderRadius.all(Radius
-                                        .circular(5))),
+                                    color: Colors.redAccent,
+                                    borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
                                 child: Text(
-                                    "Tổng tiền : " +
+                                    "Tổng Tiền : " +
                                         NumberFormat("#,###", "en_US")
                                             .format(_cartModel?.price) +
                                         " đ",
-                                    style: TextStyle(fontSize: 25,
-                                        color: Colors.white))),
+                                    style: TextStyle(
+                                        fontSize: 17, color: Colors.white))),
                             Container(
-                                padding: EdgeInsets.all(20),
+                                padding: EdgeInsets.all(5),
                                 child: ElevatedButton(
                                   onPressed: () {
                                     if (_cartModel != null) {
                                       String? cartId = _cartModel!.id;
-                                      _cartBloc.eventSink.add(
-                                          CartConformEvent(idCart: cartId));
+                                      _cartBloc.eventSink
+                                          .add(CartConformEvent(idCart: cartId));
                                     }
                                   },
-                                  style: ButtonStyle(
-                                      backgroundColor:
-                                      MaterialStateProperty.all(
-                                          Colors.deepOrange)),
-                                  child: Text("Đặt hàng",
+                                  style: ElevatedButton.styleFrom(
+                                      primary: Colors.blue,
+                                      onPrimary: Colors.white,
+                                      shadowColor: Colors.grey,
+                                      elevation: 3,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(5)),
+                                      minimumSize: const Size.fromHeight(50)),
+                                  child: Text("Thanh toán",
                                       style: TextStyle(
-                                          color: Colors.white, fontSize: 25)),
+                                          color: Colors.white,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w600)),
                                 )),
                           ],
                         );
                       }
                       return Container();
-                    }
-                ),
+                    }),
                 ProgressListenerWidget<CartBloc>(
                   callback: (event) {
                     if (event is CartSuccessEvent) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(event.message)));
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text(event.message)));
                     }
                   },
                   child: Container(),
@@ -179,9 +189,7 @@ class _CartContainerState extends State<CartContainer> {
                 )
               ],
             ),
-
-          )
-      ),
+          )),
     );
   }
 
@@ -230,9 +238,9 @@ class _CartContainerState extends State<CartContainer> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              if(product != null && _cartModel != null) {
+                              if (product != null && _cartModel != null) {
                                 String? cartId = _cartModel!.id;
-                                if(cartId.isNotEmpty) {
+                                if (cartId.isNotEmpty) {
                                   _cartBloc.eventSink.add(UpdateCartEvent(
                                       idCart: cartId,
                                       idProduct: product.id,
@@ -249,9 +257,9 @@ class _CartContainerState extends State<CartContainer> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              if(product != null && _cartModel != null) {
+                              if (product != null && _cartModel != null) {
                                 String? cartId = _cartModel!.id;
-                                if(cartId.isNotEmpty) {
+                                if (cartId.isNotEmpty) {
                                   _cartBloc.eventSink.add(UpdateCartEvent(
                                       idCart: cartId,
                                       idProduct: product.id,

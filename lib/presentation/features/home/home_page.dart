@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:badges/badges.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return PageContainer(
       appBar: AppBar(
-        title: const Text("Home"),
+        title: const Text("Sản phẩm"),
         leading: IconButton(
           icon: Icon(Icons.logout),
           onPressed: logoutUser,
@@ -167,98 +168,102 @@ class _HomeContainerState extends State<HomeContainer> {
     if (product == null) return Container();
     return SizedBox(
       height: 135,
-      child: Card(
-        elevation: 5,
-        shadowColor: Colors.blueGrey,
-        child: Container(
-          padding: const EdgeInsets.only(top: 5, bottom: 5),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(5),
-                child: Image.network(ApiConstant.BASE_URL + product.img,
-                    width: 150, height: 120, fit: BoxFit.fill),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 5),
-                        child: Text(product.name.toString(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 16)),
-                      ),
-                      Text(
-                          "Giá : ${NumberFormat("#,###", "en_US")
-                              .format(product.price)} đ",
-                          style: const TextStyle(fontSize: 12)),
-                      Row(
-                          children:[
-                            ElevatedButton(
-                              onPressed: (){
-                                _homeBloc.eventSink.add(AddToCartEvent(id: product.id));
-                              },
-                              style: ButtonStyle(
-                                  backgroundColor:
-                                  MaterialStateProperty.resolveWith((states) {
-                                    if (states.contains(MaterialState.pressed)) {
-                                      return const Color.fromARGB(200, 240, 102, 61);
-                                    } else {
-                                      return const Color.fromARGB(230, 240, 102, 61);
-                                    }
-                                  }),
-                                  shape: MaterialStateProperty.all(
-                                      const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10))))),
-                              child:
-                              const Text("Thêm vào giỏ", style: TextStyle(fontSize: 14)),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  String token = AppCache.getString(VariableConstant.TOKEN);
-                                  if(token.isNotEmpty){
-                                    Navigator.pushNamed(context, VariableConstant.PRODUCT_DETAIL_ROUTE, arguments: product);
-                                  }
-                                  else{
-                                    Navigator.pushNamed(context, "/sign-in");
-                                  }
+      child: FadeInDown(
+        delay: Duration(
+            milliseconds: 550),
+        child: Card(
+          elevation: 5,
+          shadowColor: Colors.blueGrey,
+          child: Container(
+            padding: const EdgeInsets.only(top: 5, bottom: 5),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Image.network(ApiConstant.BASE_URL + product.img,
+                      width: 150, height: 120, fit: BoxFit.fill),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: Text(product.name.toString(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 16)),
+                        ),
+                        Text(
+                            "Giá : ${NumberFormat("#,###", "en_US")
+                                .format(product.price)} đ",
+                            style: const TextStyle(fontSize: 12,color: Colors.redAccent)),
+                        Row(
+                            children:[
+                              ElevatedButton(
+                                onPressed: (){
+                                  _homeBloc.eventSink.add(AddToCartEvent(id: product.id));
                                 },
                                 style: ButtonStyle(
                                     backgroundColor:
                                     MaterialStateProperty.resolveWith((states) {
                                       if (states.contains(MaterialState.pressed)) {
-                                        return const Color.fromARGB(200, 11, 22, 142);
+                                        return const Color.fromARGB(200, 240, 102, 61);
                                       } else {
-                                        return const Color.fromARGB(230, 11, 22, 142);
+                                        return const Color.fromARGB(230, 240, 102, 61);
                                       }
                                     }),
                                     shape: MaterialStateProperty.all(
                                         const RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(
-                                                Radius.circular(10)
-                                            )
-                                        )
-                                    )
-                                ),
+                                                Radius.circular(10))))),
                                 child:
-                                Text("Chi tiết", style: const TextStyle(fontSize: 14)),
+                                const Text("Thêm vào giỏ", style: TextStyle(fontSize: 14)),
                               ),
-                            ),
-                          ]
-                      ),
-                    ],
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    String token = AppCache.getString(VariableConstant.TOKEN);
+                                    if(token.isNotEmpty){
+                                      Navigator.pushNamed(context, VariableConstant.PRODUCT_DETAIL_ROUTE, arguments: product);
+                                    }
+                                    else{
+                                      Navigator.pushNamed(context, "/sign-in");
+                                    }
+                                  },
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                      MaterialStateProperty.resolveWith((states) {
+                                        if (states.contains(MaterialState.pressed)) {
+                                          return const Color.fromARGB(200, 11, 22, 142);
+                                        } else {
+                                          return const Color.fromARGB(230, 11, 22, 142);
+                                        }
+                                      }),
+                                      shape: MaterialStateProperty.all(
+                                          const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)
+                                              )
+                                          )
+                                      )
+                                  ),
+                                  child:
+                                  Text("Chi tiết", style: const TextStyle(fontSize: 14)),
+                                ),
+                              ),
+                            ]
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:flutter_app_sale_06072022/common/constants/variable_constant.dar
 import 'package:flutter_app_sale_06072022/data/datasources/local/cache/app_cache.dart';
 import 'package:flutter_app_sale_06072022/presentation/features/cart/cart_page.dart';
 import 'package:flutter_app_sale_06072022/presentation/features/home/home_page.dart';
+import 'package:flutter_app_sale_06072022/presentation/features/order_history/order_history_page.dart';
 import 'package:flutter_app_sale_06072022/presentation/features/product_detail/product_detail_page.dart';
 import 'package:flutter_app_sale_06072022/presentation/features/sign_in/sign_in_page.dart';
 import 'package:flutter_app_sale_06072022/presentation/features/sign_up/sign_up_page.dart';
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         VariableConstant.HOME_ROUTE: (context) => HomePage(),
         VariableConstant.CART_ROUTE: (context) => CartPage(),
         VariableConstant.PRODUCT_DETAIL_ROUTE: (context) => ProductPage(),
+        VariableConstant.ORDER_HISTORY_ROUTE: (context) => OrderHistoryPage(),
         VariableConstant.SPLASH_ROUTE: (context) => SplashPage(),
       },
       initialRoute: VariableConstant.SPLASH_ROUTE,
