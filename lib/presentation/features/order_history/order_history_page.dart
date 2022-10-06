@@ -1,17 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_sale_06072022/common/constants/api_constant.dart';
-import 'package:flutter_app_sale_06072022/common/widgets/loading_widget.dart';
-import 'package:flutter_app_sale_06072022/data/model/order_history.dart';
-import 'package:flutter_app_sale_06072022/data/repositories/order_repository.dart';
-import 'package:flutter_app_sale_06072022/presentation/features/order_history/order_history_bloc.dart';
+import 'package:flutter_app_sale_06072022/common/bases/base_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../common/bases/base_widget.dart';
+import '../../../common/constants/variable_constant.dart';
+import '../../../common/widgets/loading_widget.dart';
 import '../../../data/datasources/remote/api_request.dart';
+import '../../../data/model/order_history.dart';
 import '../../../data/model/product.dart';
+import '../../../data/repositories/product_repository.dart';
+import 'order_history_bloc.dart';
 import 'order_history_event.dart';
-
-
 
 class OrderHistoryPage extends StatefulWidget {
   const OrderHistoryPage({Key? key}) : super(key: key);
@@ -25,18 +24,31 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
   Widget build(BuildContext context) {
     return PageContainer(
       appBar: AppBar(
-        title: const Text("Lịch sử đơn hàng"),
+        title: const Text("Danh sách đơn hàng"),
+        actions: [
+          Container(
+              margin: EdgeInsets.only(right: 10, top: 10),
+              child: IconButton(
+                icon: Icon(Icons.home),
+                onPressed: () {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      VariableConstant.HOME_ROUTE,
+                          (Route<dynamic> route) => false);
+                },
+              ))
+        ],
       ),
       providers: [
         Provider(create: (context) => ApiRequest()),
-        ProxyProvider<ApiRequest, OrderRepository>(
+        ProxyProvider<ApiRequest, ProductRepository>(
           update: (context, request, repository) {
             repository?.updateRequest(request);
-            return repository ?? OrderRepository()
+            return repository ?? ProductRepository()
               ..updateRequest(request);
           },
         ),
-        ProxyProvider<OrderRepository, OrderBloc>(
+        ProxyProvider<ProductRepository, OrderBloc>(
           update: (context, repository, bloc) {
             bloc?.updateOrderRepository(repository);
             return bloc ?? OrderBloc()
@@ -48,6 +60,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     );
   }
 }
+
 class OrderContainer extends StatefulWidget {
   const OrderContainer({Key? key}) : super(key: key);
 
@@ -62,7 +75,7 @@ class _OrderContainerState extends State<OrderContainer> {
   void initState() {
     super.initState();
     _orderBloc = context.read<OrderBloc>();
-    _orderBloc.eventSink.add(GetHistoryOrderEvent());
+    _orderBloc.eventSink.add(GetHistoryOrder());
   }
 
   @override
@@ -88,18 +101,15 @@ class _OrderContainerState extends State<OrderContainer> {
                         itemCount: snapshot.data?.length ?? 0,
                         itemBuilder: (context, index) {
                           return _itemOrder(snapshot.data?[index]);
-                        }
-                    );
-                  }
-              ),
+                        });
+                  }),
               LoadingWidget(
                 bloc: _orderBloc,
                 child: Container(),
               )
             ],
           ),
-        )
-    );
+        ));
   }
 
   Widget _itemOrder(Order? order) {
@@ -112,17 +122,6 @@ class _OrderContainerState extends State<OrderContainer> {
           padding: const EdgeInsets.only(top: 3, bottom: 3),
           child: Row(
             children: [
-              Padding(
-                padding: EdgeInsets.zero,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5), topLeft: Radius.circular(5)),
-                  child: Image.network(
-                      ApiConstant.BASE_URL + (products?.first.img).toString(),
-                      width: 100,
-                      height: 80,
-                      fit: BoxFit.fill),
-                ),
-              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 10),
@@ -130,34 +129,62 @@ class _OrderContainerState extends State<OrderContainer> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text( "#${order?.id}",
-                          style: TextStyle(fontSize: 13, color: Colors.red, fontWeight: FontWeight.bold)),
                       Container(
-                        margin: const EdgeInsets.only(top:5,bottom: 2),
-                        child: Text(DateFormat('HH:mm - dd/MM/yyyy')
-                            .format(DateTime.parse(order!.dateCreated))
-                            .toString(),
+                        margin: const EdgeInsets.only(top: 5, bottom: 2),
+                        child: Text(
+                            DateFormat('dd/MM/yyyy - HH:mm')
+                                .format(DateTime.parse(order!.dateCreated))
+                                .toString(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold)),
                       ),
-                      Text( '( ' + order.products.length.toString() + " món )",
-                          style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
-                      SizedBox(height: 2,),
+                      Text('Số lượng: ' + order.products.length.toString(),
+                          style: TextStyle(
+                              fontSize: 12, fontStyle: FontStyle.italic)),
+                      SizedBox(
+                        height: 2,
+                      ),
                       Row(
                         children: [
+                          Text("Tổng tiền : ", style: TextStyle(fontSize: 12)),
                           Text(
-                              "Tổng tiền : ",
-                              style: TextStyle(fontSize: 12)),
-                          Text( NumberFormat("#,###", "en_US")
-                              .format(order.price) +
-                              " đ",
-                              style: TextStyle(fontSize: 14, color: Colors.red, fontWeight: FontWeight.bold)),
+                              NumberFormat("#,###", "en_US")
+                                  .format(order.price) +
+                                  " đ",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold)),
                         ],
                       ),
-
                     ],
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 5, right: 5),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                        context, VariableConstant.ORDER_HISTORY_DETAIL_ROUTE,
+                        arguments: order);
+                  },
+                  style: ButtonStyle(
+                      backgroundColor:
+                      MaterialStateProperty.resolveWith((states) {
+                        if (states.contains(MaterialState.pressed)) {
+                          return const Color.fromARGB(200, 11, 22, 142);
+                        } else {
+                          return const Color.fromARGB(230, 11, 22, 142);
+                        }
+                      }),
+                      shape: MaterialStateProperty.all(
+                          const RoundedRectangleBorder(
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(500))))),
+                  child: Text("Chi tiết", style: const TextStyle(fontSize: 14)),
                 ),
               ),
             ],

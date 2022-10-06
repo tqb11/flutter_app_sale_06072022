@@ -55,6 +55,6 @@ class ApiRequest {
   }
 
   Future getOrder() {
-    return _dio.get(ApiConstant.ORDER_HISTORY_URL);
+    return _dio.post(ApiConstant.ORDER_HISTORY_URL);
   }
 }
